@@ -10,16 +10,47 @@ import UIKit
 
 class ViewController: UIViewController {
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+    @IBOutlet weak var container: UIView!
+    var currentControllerIdentifier: String? {
+        didSet {
+            println("Current identifier : \(currentControllerIdentifier)")
+        }
     }
+    weak var currentController: UIViewController?
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+
+    @IBAction func changeController() {
+        var newControllerIdentifier: String
+        switch currentControllerIdentifier {
+            case .Some("first") : newControllerIdentifier = "second"
+            case .Some("second") : newControllerIdentifier = "first"
+            default: newControllerIdentifier = "first"
+        }
+        
+        if var newController = storyboard?.instantiateViewControllerWithIdentifier(newControllerIdentifier) as? UIViewController {
+            newController.view.frame = currentController!.view.frame
+            self.addChildViewController(newController)
+            self.willMoveToParentViewController(nil)       
+            self.transitionFromViewController(currentController!,
+                toViewController: newController,
+                duration: 0.0, options: nil,
+                animations: nil,
+                completion: { (finished) in
+                    self.currentController?.removeFromParentViewController()
+                    self.currentController = newController
+                    self.currentControllerIdentifier = newControllerIdentifier
+                    newController.didMoveToParentViewController(self)
+                }
+            )
+        }
     }
-
-
+    
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        if let currentController = segue.destinationViewController as? UIViewController {
+            self.currentController = currentController
+            self.currentControllerIdentifier = "first"
+        }
+    }
+    
 }
 
