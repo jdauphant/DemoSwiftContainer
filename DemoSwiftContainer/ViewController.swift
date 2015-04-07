@@ -30,7 +30,7 @@ class ViewController: UIViewController {
         if var newController = storyboard?.instantiateViewControllerWithIdentifier(newControllerIdentifier) as? UIViewController {
             newController.view.frame = currentController!.view.frame
             self.addChildViewController(newController)
-            self.willMoveToParentViewController(nil)       
+            newController.willMoveToParentViewController(self)
             self.transitionFromViewController(currentController!,
                 toViewController: newController,
                 duration: 0.0, options: nil,
